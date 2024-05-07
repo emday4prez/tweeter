@@ -14,6 +14,9 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
    // fmt.Fprintln(w, `{"message": "OK"}`)
 }
 
+type apiConfig struct {
+	fileserverHits int
+}
 
 func main(){
 
