@@ -14,22 +14,57 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
    // fmt.Fprintln(w, `{"message": "OK"}`)
 }
 
+func serverHitsHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+				s:= fmt.Sprintf("Hits: %v", apiCfg.fileserverHits)
+				ok := []byte(s)
+    w.WriteHeader(http.StatusOK)
+				w.Write(ok)
+   // fmt.Fprintln(w, `{"message": "OK"}`)
+}
+
+func resetHandler(w http.ResponseWriter, r *http.Request){
+			apiCfg.resetServerHitCount()
+    w.WriteHeader(http.StatusOK)
+}
+
 type apiConfig struct {
 	fileserverHits int
 }
+
+func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
+	// Use a closure to wrap functionality
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cfg.fileserverHits++ // Increment the counter
+		next.ServeHTTP(w, r)  // Call the next handler 
+	})
+}
+
+func (c *apiConfig) resetServerHitCount( )  {
+	c.fileserverHits = 0;
+ 
+}
+
+var apiCfg apiConfig
+
+
+
+
 
 func main(){
 
 
 	mux := http.NewServeMux()
-fs := http.FileServer(http.Dir("."))
+	fs := http.FileServer(http.Dir("."))
+	sfs := http.StripPrefix("/app", fs)
 
 
-
-
-mux.Handle("/app/*", http.StripPrefix("/app", fs))
-mux.Handle("/assets/logo.png", fs)
+mux.Handle("/app/*", apiCfg.middlewareMetricsInc(sfs))
+mux.Handle("/assets/logo.png", sfs)
 mux.HandleFunc("/healthz", handlerFunc )
+mux.HandleFunc("/metrics", serverHitsHandler )
+mux.HandleFunc("/reset", resetHandler )
 
 
 	server := &http.Server{
