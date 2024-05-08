@@ -62,8 +62,8 @@ func main(){
 
 mux.Handle("/app/*", apiCfg.middlewareMetricsInc(sfs))
 mux.Handle("/assets/logo.png", sfs)
-mux.HandleFunc("/healthz", handlerFunc )
-mux.HandleFunc("/metrics", serverHitsHandler )
+mux.HandleFunc("GET /healthz", handlerFunc )
+mux.HandleFunc("GET /metrics", serverHitsHandler )
 mux.HandleFunc("/reset", resetHandler )
 
 
