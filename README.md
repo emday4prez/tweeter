@@ -1,3 +1,3 @@
 ## tweeter
 
-# learning web servers with go
+# learning web servers with gook
