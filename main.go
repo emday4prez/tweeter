@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +79,14 @@ type validResponse struct{
 	Valid bool `json:"valid"`
 }
 
-func validateHandler(w http.ResponseWriter, r *http.Request){
+type cleanedResponse struct {
+	CleanedBody string `json:"cleaned_body"`
+}
+
+var badWords = []string{"kerfuffle", "sharbert", "fornax"}
+	
+
+func validateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
@@ -86,19 +94,40 @@ func validateHandler(w http.ResponseWriter, r *http.Request){
 
 	err := decoder.Decode(&params)
 	if err != nil {
-     w.WriteHeader(http.StatusBadRequest)
-        json.NewEncoder(w).Encode(errorResponse{Error: "Invalid request body"})
-        return 
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errorResponse{Error: "Invalid request body"})
+		return
 	}
-if len(params.Body) > 140 {
-	 w.WriteHeader(http.StatusBadRequest)
-        json.NewEncoder(w).Encode(errorResponse{Error: "Chirp is too long"})
-        return 
+
+	if len(params.Body) > 140 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errorResponse{Error: "Chirp is too long"})
+		return
+	}
+
+	words := strings.Fields(params.Body) // Use Fields to split by any whitespace
+
+	for i, word := range words {
+		if containsIgnoreCase(badWords, word) {
+			words[i] = "****"
+		}
+	}
+
+	cleanedSentence := strings.Join(words, " ")
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(cleanedResponse{CleanedBody: cleanedSentence})
 }
 
-w.WriteHeader(http.StatusOK)
-json.NewEncoder(w).Encode(validResponse{Valid: true})
 
+// Helper function for case-insensitive slice containment check
+func containsIgnoreCase(slice []string, item string) bool {
+	for _, s := range slice {
+		if strings.EqualFold(s, item) { // Case-insensitive comparison
+			return true
+		}
+	}
+	return false
 }
 
 
