@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -66,7 +67,39 @@ func (c *apiConfig) resetServerHitCount( )  {
 
 var apiCfg apiConfig
 
+type parameters struct {
+    Body string `json:"body"`
+}
 
+type errorResponse struct {
+    Error string `json:"error"`
+}
+type validResponse struct{
+	Valid bool `json:"valid"`
+}
+
+func validateHandler(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+
+	err := decoder.Decode(&params)
+	if err != nil {
+     w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(errorResponse{Error: "Invalid request body"})
+        return 
+	}
+if len(params.Body) > 140 {
+	 w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(errorResponse{Error: "Chirp is too long"})
+        return 
+}
+
+w.WriteHeader(http.StatusOK)
+json.NewEncoder(w).Encode(validResponse{Valid: true})
+
+}
 
 
 
@@ -84,6 +117,7 @@ mux.HandleFunc("GET /healthz", handlerFunc )
 mux.HandleFunc("GET /metrics", serverHitsHandler )
 mux.HandleFunc("GET /admin/metrics", displayServerHitsHandler )
 mux.HandleFunc("/api/reset", resetHandler )
+mux.HandleFunc("/api/validate_chirp", validateHandler )
 
 
 	server := &http.Server{
