@@ -24,6 +24,24 @@ func serverHitsHandler(w http.ResponseWriter, r *http.Request) {
    // fmt.Fprintln(w, `{"message": "OK"}`)
 }
 
+func displayServerHitsHandler(w http.ResponseWriter, r *http.Request) {
+	visits := apiCfg.fileserverHits
+
+    w.Header().Set("Content-Type", "text/html; charset=utf-8")
+    fmt.Fprintf(w, `
+<html>
+<body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited %d times!</p>
+</body>
+</html>
+    `, visits)
+			
+    w.WriteHeader(http.StatusOK)
+			
+
+}
+
 func resetHandler(w http.ResponseWriter, r *http.Request){
 			apiCfg.resetServerHitCount()
     w.WriteHeader(http.StatusOK)
@@ -64,7 +82,8 @@ mux.Handle("/app/*", apiCfg.middlewareMetricsInc(sfs))
 mux.Handle("/assets/logo.png", sfs)
 mux.HandleFunc("GET /healthz", handlerFunc )
 mux.HandleFunc("GET /metrics", serverHitsHandler )
-mux.HandleFunc("/reset", resetHandler )
+mux.HandleFunc("GET /admin/metrics", displayServerHitsHandler )
+mux.HandleFunc("/api/reset", resetHandler )
 
 
 	server := &http.Server{
