@@ -119,11 +119,8 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(cleanedResponse{CleanedBody: cleanedSentence})
 }
 
-
-// Helper function for case-insensitive slice containment check
 func containsIgnoreCase(slice []string, item string) bool {
 	for _, s := range slice {
-		// Case-insensitive comparison
 		if strings.EqualFold(s, item) { 
 			return true
 		}
@@ -131,7 +128,38 @@ func containsIgnoreCase(slice []string, item string) bool {
 	return false
 }
 
+func chirpPostHandler(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
 
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+
+	err := decoder.Decode(&params)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errorResponse{Error: "Invalid request body"})
+		return
+	}
+
+	if len(params.Body) > 140 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(errorResponse{Error: "Chirp is too long"})
+		return
+	}
+// Use Fields to split by any whitespace
+	words := strings.Fields(params.Body) 
+
+	for i, word := range words {
+		if containsIgnoreCase(badWords, word) {
+			words[i] = "****"
+		}
+	}
+
+	cleanedSentence := strings.Join(words, " ")
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(cleanedResponse{CleanedBody: cleanedSentence})
+}
 
 func main(){
 
@@ -148,6 +176,7 @@ mux.HandleFunc("GET /metrics", serverHitsHandler )
 mux.HandleFunc("GET /admin/metrics", displayServerHitsHandler )
 mux.HandleFunc("/api/reset", resetHandler )
 mux.HandleFunc("/api/validate_chirp", validateHandler )
+mux.HandleFunc("POST /api/chirps", chirpPostHandler )
 
 
 	server := &http.Server{
