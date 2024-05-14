@@ -104,8 +104,8 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(errorResponse{Error: "Chirp is too long"})
 		return
 	}
-
-	words := strings.Fields(params.Body) // Use Fields to split by any whitespace
+// Use Fields to split by any whitespace
+	words := strings.Fields(params.Body) 
 
 	for i, word := range words {
 		if containsIgnoreCase(badWords, word) {
@@ -123,7 +123,8 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 // Helper function for case-insensitive slice containment check
 func containsIgnoreCase(slice []string, item string) bool {
 	for _, s := range slice {
-		if strings.EqualFold(s, item) { // Case-insensitive comparison
+		// Case-insensitive comparison
+		if strings.EqualFold(s, item) { 
 			return true
 		}
 	}
