@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -46,9 +47,8 @@ func (db *DB) ensureDB() error{
 
  
  if errors.Is(err, fs.ErrNotExist) {
-			//database.json does not exist
-			//create file
-//create empty db structure (with the type and make a map of chirps for the Chirps key)
+			//database.json does not exist //create file
+ 
 emptyDb := DBStructure{Chirps: make(map[int]Chirp)}
 // use json marshall indent to fill with empty data
  json, err := json.MarshalIndent(emptyDb, "", " ")
@@ -70,7 +70,18 @@ if err := os.WriteFile(db.path, json, 0644); err != nil {
 
 // loadDB reads the database file into memory
 func (db *DB) loadDB() (DBStructure, error){
+db.mux.RLock()
+defer db.mux.RUnlock()
 
+data, err := os.ReadFile(db.path)
+if err != nil {
+	return DBStructure{}, fmt.Errorf("error reading database file: %w", err)
+}
+var dbStructure DBStructure
+if err := json.Unmarshal(data, &dbStructure); err != nil {
+	return dbStructure, fmt.Errorf("error unmarshalling database: %w", err)
+}
+return dbStructure, nil
 }
 
 // writeDB writes the database file to disk
