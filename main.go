@@ -83,6 +83,11 @@ type cleanedResponse struct {
 	CleanedBody string `json:"cleaned_body"`
 }
 
+type chirpResponse struct {
+	Id int `json:"id"`
+	Body string `json:"body"`
+}
+
 var badWords = []string{"kerfuffle", "sharbert", "fornax"}
 	
 
