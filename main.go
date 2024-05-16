@@ -87,7 +87,7 @@ type chirpResponse struct {
 	Id int `json:"id"`
 	Body string `json:"body"`
 }
-
+ var uid = 1
 var badWords = []string{"kerfuffle", "sharbert", "fornax"}
 	
 
@@ -121,7 +121,8 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 	cleanedSentence := strings.Join(words, " ")
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(cleanedResponse{CleanedBody: cleanedSentence})
+	json.NewEncoder(w).Encode(chirpResponse{Id: uid,Body: cleanedSentence })
+	uid++
 }
 
 func containsIgnoreCase(slice []string, item string) bool {
@@ -163,7 +164,8 @@ func chirpPostHandler(w http.ResponseWriter, r *http.Request){
 	cleanedSentence := strings.Join(words, " ")
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(cleanedResponse{CleanedBody: cleanedSentence})
+	json.NewEncoder(w).Encode(chirpResponse{Id: uid,Body: cleanedSentence })
+	uid++
 }
 
 func main(){

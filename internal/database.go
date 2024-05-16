@@ -1,6 +1,10 @@
 package db
 
 import (
+	"encoding/json"
+	"errors"
+	"io/fs"
+	"log"
 	"os"
 	"sync"
 )
@@ -38,23 +42,28 @@ func (db *DB) GetChirps() ([]Chirp, error){
 // ensureDB creates a new database file if it doesn't exist
 func (db *DB) ensureDB() error{
 //check path on db using Stat
- 
+ _,err := os.ReadFile(db.path)
 
-//check error using os.IsNotExist(err) for "file not found"
  
-	//database.json does not exist
-//create file
+ if errors.Is(err, fs.ErrNotExist) {
+			//database.json does not exist
+			//create file
 //create empty db structure (with the type and make a map of chirps for the Chirps key)
- 
+emptyDb := DBStructure{Chirps: make(map[int]Chirp)}
 // use json marshall indent to fill with empty data
+ json, err := json.MarshalIndent(emptyDb, "", " ")
+if err != nil {
+	log.Fatal(err)
+}
+// if err := writefile; err != nil  {return error} 
+if err := os.WriteFile(db.path, json, 0644); err != nil {
+ return err
+}
+
  
-
-
-// if err := writefile; err != nil  {return error}  
-
-
+	}
  //database.json exists
- 
+ return nil
 }
 
 
