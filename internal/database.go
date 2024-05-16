@@ -38,17 +38,26 @@ func (db *DB) GetChirps() ([]Chirp, error){
 // ensureDB creates a new database file if it doesn't exist
 func (db *DB) ensureDB() error{
 //check path on db using Stat
-_, err := os.Stat("internal/database.json")
+ 
 
 //check error using os.IsNotExist(err) for "file not found"
-if os.IsNotExist(err){
+ 
 	//database.json does not exist
 //create file
-os.WriteFile("database.json", []byte("{}"), 0644)
+//create empty db structure (with the type and make a map of chirps for the Chirps key)
+ 
+// use json marshall indent to fill with empty data
+ 
+
+
+// if err := writefile; err != nil  {return error}  
+
+
+ //database.json exists
+ 
 }
-//database.json exists
-return nil
-}
+
+
 
 // loadDB reads the database file into memory
 func (db *DB) loadDB() (DBStructure, error){
@@ -60,3 +69,14 @@ func (db *DB) writeDB(dbStructure DBStructure) error{
 
 } 
 
+
+
+
+
+func (db *DB) eeDB()error {
+	_, err := os.Stat(db.path)
+
+	if os.IsNotExist(err){
+		
+	}
+}
