@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -166,11 +167,12 @@ func chirpPostHandler(w http.ResponseWriter, r *http.Request){
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(chirpResponse{Id: uid,Body: cleanedSentence })
 	uid++
+ 
 }
-
+ 
 func main(){
-
-
+ 
+defer os.Remove("database.json")
 	mux := http.NewServeMux()
 	fs := http.FileServer(http.Dir("."))
 	sfs := http.StripPrefix("/app", fs)
@@ -195,4 +197,5 @@ mux.HandleFunc("POST /api/chirps", chirpPostHandler )
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
+
 }
