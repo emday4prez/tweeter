@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/emday4prez/tweeter/internal/database"
 )
@@ -12,9 +14,26 @@ type apiConfig struct {
 	DB             *database.DB
 }
 
+	func deleteDatabase(dbPath string) error {
+		err := os.Remove(dbPath)
+		if err != nil {
+				return err
+		}
+		return nil
+	}
+
+
+
 func main() {
 	const filepathRoot = "."
 	const port = "8080"
+dbg := flag.Bool("debug", false, "Enable debug mode")
+flag.Parse()
+	// Check if debug mode is enabled
+	if *dbg {
+		// Call the function to delete the database here.
+		deleteDatabase("database.json")
+	}
 
 	db, err := database.NewDB("database.json")
 	if err != nil {
@@ -25,6 +44,8 @@ func main() {
 		fileserverHits: 0,
 		DB:             db,
 	}
+
+
 
 	mux := http.NewServeMux()
 	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
