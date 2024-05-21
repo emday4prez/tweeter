@@ -36,6 +36,8 @@ func main() {
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
 	mux.HandleFunc("GET /api/chirps/{id}", apiCfg.handlerChirpsGetById)
 
+		mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
+
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 
 	srv := &http.Server{

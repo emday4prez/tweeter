@@ -31,7 +31,8 @@ func (cfg *apiConfig) handlerChirpsRetrieve(w http.ResponseWriter, r *http.Reque
 func (cfg *apiConfig) handlerChirpsGetById(w http.ResponseWriter, r *http.Request) {
 
  idString := r.PathValue("id")
-	 id, err := strconv.Atoi(idString)
+	id, err := strconv.Atoi(idString)
+
 	dbChirp, err := cfg.DB.GetChirpById(id)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "Couldn't retrieve chirps")
