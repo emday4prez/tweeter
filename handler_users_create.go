@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bcrypt"
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -14,6 +17,7 @@ type User struct {
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Email string `json:"email"`
+		Password string `json:password`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -24,13 +28,18 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+
 	validEmail, err := validateEmail(params.Email)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	user, err := cfg.DB.CreateUser(validEmail)
+hashedPassword, err := bcrypt.GenerateFromPassword(params.Password)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	user, err := cfg.DB.CreateUser(validEmail, hashedPassword)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
 		return
