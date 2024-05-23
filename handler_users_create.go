@@ -1,7 +1,8 @@
 package main
 
+//	"golang.org/x/crypto/bcrypt"
+// 	"bcrypt"
 import (
-	"bcrypt"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -33,12 +34,12 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-hashedPassword, err := bcrypt.GenerateFromPassword(params.Password)
+hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password),14)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	user, err := cfg.DB.CreateUser(validEmail, hashedPassword)
+	user, err := cfg.DB.CreateUser(validEmail, string(hashedPassword))
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
 		return
