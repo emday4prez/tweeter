@@ -29,6 +29,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	
 	validEmail, err := validateEmail(params.Email)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
