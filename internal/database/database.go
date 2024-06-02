@@ -90,7 +90,23 @@ func (db *DB) GetChirpById(id int) (Chirp, error) {
 	return matchingChirp, errors.New("no chirps with that id")
 }
 
+func (db *DB) GetUserByEmail(email string) (User, error) {
+    var matchingUser User
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return matchingUser, err
+	}
 
+ 
+	for _, user := range dbStructure.Users {
+        if user.Email == email {
+            return user, nil
+        }
+	 
+	}
+
+	return matchingUser, errors.New("no users with that email")
+}
 
 
 func (db *DB) CreateUser(email string, password string) (User, error) {

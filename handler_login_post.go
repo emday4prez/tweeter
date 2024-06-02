@@ -4,10 +4,7 @@ package main
 // 	"bcrypt"
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
  
@@ -32,16 +29,13 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password),14)
+ 
+	dbUsers, err := cfg.DB.GetUse()
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, err.Error())
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve chirps")
 		return
 	}
-	user, err := cfg.DB.CreateUser(validEmail, string(hashedPassword))
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
-		return
-	}
+ 
 
 	respondWithJSON(w, http.StatusCreated, User{
 		ID:   user.ID,
@@ -49,10 +43,12 @@ hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password),14)
 	})
 }
 
-func validateEmail(email string) (string, error) {
-	const maxEmailLength = 140
-	if len(email) > maxEmailLength {
-		return "", errors.New("email is too long")
-	}
-	return email, nil
-}
+
+
+// func validateEmail(email string) (string, error) {
+// 	const maxEmailLength = 140
+// 	if len(email) > maxEmailLength {
+// 		return "", errors.New("email is too long")
+// 	}
+// 	return email, nil
+// }
