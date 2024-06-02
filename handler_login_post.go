@@ -1,10 +1,12 @@
 package main
 
 //	"golang.org/x/crypto/bcrypt"
-// 	"bcrypt"
+//
 import (
 	"encoding/json"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
  
@@ -30,16 +32,20 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
  
-	dbUsers, err := cfg.DB.GetUse()
+	dbUser, err := cfg.DB.GetUserByEmail(validEmail)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve chirps")
+		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve User")
 		return
 	}
  
+	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password),[]byte(params.Password))
+if err != nil {
+   		respondWithError(w, http.StatusUnauthorized, "incorrect password")
+} 
 
-	respondWithJSON(w, http.StatusCreated, User{
-		ID:   user.ID,
-		Email: user.Email,
+	respondWithJSON(w, http.StatusOK, User{
+		ID:   dbUser.ID,
+		Email: dbUser.Email,
 	})
 }
 
