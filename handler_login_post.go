@@ -25,7 +25,6 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	validEmail, err := validateEmail(params.Email)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
@@ -37,7 +36,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve User")
 		return
 	}
-	
+
 	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password),[]byte(params.Password))
 if err != nil {
    		respondWithError(w, http.StatusUnauthorized, "incorrect password")
