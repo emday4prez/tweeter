@@ -7,11 +7,13 @@ import (
 	"os"
 
 	"github.com/emday4prez/tweeter/internal/database"
+	"github.com/joho/godotenv"
 )
 
 type apiConfig struct {
 	fileserverHits int
 	DB             *database.DB
+	jwtSecret      string
 }
 
 	func deleteDatabase(dbPath string) error {
@@ -23,8 +25,8 @@ type apiConfig struct {
 	}
 
 
-
 func main() {
+	godotenv.Load()
 	const filepathRoot = "."
 	const port = "8080"
 dbg := flag.Bool("debug", false, "Enable debug mode")
@@ -40,9 +42,12 @@ flag.Parse()
 		log.Fatal(err)
 	}
 
+jwtS := os.Getenv("JWT_SECRET")
+
 	apiCfg := apiConfig{
 		fileserverHits: 0,
 		DB:             db,
+		jwtSecret:						jwtS,
 	}
 
 
