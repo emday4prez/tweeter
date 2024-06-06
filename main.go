@@ -50,8 +50,6 @@ jwtS := os.Getenv("JWT_SECRET")
 		jwtSecret:						jwtS,
 	}
 
-
-
 	mux := http.NewServeMux()
 	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
 	mux.Handle("/app/*", fsHandler)
