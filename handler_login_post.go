@@ -47,13 +47,3 @@ if err != nil {
 		Email: dbUser.Email,
 	})
 }
-
-
-
-// func validateEmail(email string) (string, error) {
-// 	const maxEmailLength = 140
-// 	if len(email) > maxEmailLength {
-// 		return "", errors.New("email is too long")
-// 	}
-// 	return email, nil
-// }

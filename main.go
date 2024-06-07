@@ -24,7 +24,6 @@ type apiConfig struct {
 		return nil
 	}
 
-
 func main() {
 	godotenv.Load()
 	const filepathRoot = "."
