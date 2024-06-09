@@ -15,6 +15,8 @@ type User struct {
 	Email string `json:"email"`
 }
 
+
+
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Email string `json:"email"`
