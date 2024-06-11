@@ -61,6 +61,7 @@ jwtS := os.Getenv("JWT_SECRET")
 	mux.HandleFunc("GET /api/chirps/{id}", apiCfg.handlerChirpsGetById)
 
 		mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
+		mux.HandleFunc("PUT /api/users", apiCfg.handlerUsersUpdate)
 
 		mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 

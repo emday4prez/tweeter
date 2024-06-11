@@ -132,7 +132,22 @@ func (db *DB) CreateUser(email string, password string) (User, error) {
 }
 
 
+func (db *DB) UpdateUser(id int, email string, password string) error {
+    dbStructure, err := db.loadDB()
+    if err != nil {
+        return err
+    }
 
+    if user, exists := dbStructure.Users[id]; exists { 
+        user.Email = email
+        user.Password = password
+        dbStructure.Users[id] = user // Reassign the modified user
+    } else {
+        return errors.New("user not found")
+    }
+
+    return db.writeDB(dbStructure)
+}
 
 func (db *DB) createDB() error {
 	dbStructure := DBStructure{

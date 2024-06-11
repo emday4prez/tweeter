@@ -4,6 +4,7 @@ package main
 //
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,7 +35,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
- 
+ fmt.Printf("Login attempt: Email=%s", params.Email) 
 	dbUser, err := cfg.DB.GetUserByEmail(validEmail)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve User")
@@ -43,6 +44,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password),[]byte(params.Password))
 if err != nil {
+	 fmt.Printf("Password comparison error: %v", err)
    		respondWithError(w, http.StatusUnauthorized, "incorrect password")
 } 
 
@@ -64,14 +66,15 @@ if params.ExpiresInSeconds > 0 {
 
     // Create token
     token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-
+				fmt.Println(token.Claims)
     // Sign token
     signedToken, err := token.SignedString(cfg.jwtSecret)
     if err != nil {
+					fmt.Printf("error signing token:: %v", err)
         respondWithError(w, http.StatusInternalServerError, "Error signing token")
         return
     }
-
+fmt.Printf("Login successful: UserID=%d, Token=%s", dbUser.ID, signedToken)
     // Send JWT in the response header
     w.Header().Set("Authorization", "Bearer "+signedToken)
 
