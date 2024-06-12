@@ -16,6 +16,7 @@ type apiConfig struct {
 	jwtSecret      string
 }
 
+
 	func deleteDatabase(dbPath string) error {
 		err := os.Remove(dbPath)
 		if err != nil {
