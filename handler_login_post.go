@@ -65,10 +65,11 @@ if params.ExpiresInSeconds > 0 {
     }
 
     // Create token
-    token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-				fmt.Println(token.Claims)
-    // Sign token
-    signedToken, err := token.SignedString(cfg.jwtSecret)
+    token  := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+				secretKey := cfg.jwtSecret
+
+				// Sign token
+    signedToken, err := token.SignedString([]byte(secretKey))
     if err != nil {
 					fmt.Printf("error signing token:: %v", err)
         respondWithError(w, http.StatusInternalServerError, "Error signing token")
