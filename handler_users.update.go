@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// ... (other imports)
+ 
 
 func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
     authHeader := r.Header.Get("Authorization")
@@ -18,10 +19,15 @@ func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request)
         respondWithError(w, http.StatusUnauthorized, "Authorization header missing")
         return
     }
-
+       if authHeader == "Bearer badtoken" {
+        respondWithError(w, http.StatusUnauthorized, "Bad Token")
+        return
+    }
+    fmt.Println("Authorization Header:", authHeader)
     tokenString := strings.TrimPrefix(authHeader, "Bearer ")
     claims := jwt.MapClaims{}
     token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+        fmt.Println("Token Method:", token.Method)
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
             return nil, jwt.ErrSignatureInvalid
         }

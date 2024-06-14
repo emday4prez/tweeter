@@ -35,7 +35,8 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
- fmt.Printf("Login attempt: Email=%s", params.Email) 
+ fmt.Printf("\nLogin attempt: Email=%s \n", params.Email) 
+
 	dbUser, err := cfg.DB.GetUserByEmail(validEmail)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve User")
@@ -46,22 +47,24 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 if err != nil {
 	 fmt.Printf("Password comparison error: %v", err)
    		respondWithError(w, http.StatusUnauthorized, "incorrect password")
+					return
 } 
 
-expiresIn := 24* time.Hour // default expiration
-if params.ExpiresInSeconds > 0 {
-	  potentialExpiresIn := time.Duration(params.ExpiresInSeconds) * time.Second
-        if potentialExpiresIn <= 24*time.Hour {
-            expiresIn = potentialExpiresIn
-        }
-}
+	expiresIn := 24 * time.Hour // default expiration
+	if params.ExpiresInSeconds > 0 {
+		potentialExpiresIn := time.Duration(params.ExpiresInSeconds) * time.Second
+		if potentialExpiresIn <= 24*time.Hour {
+			expiresIn = potentialExpiresIn
+		}
+	}
+	expirationTime := time.Now().Add(expiresIn).Unix() 
 
     // Create JWT claims
     claims := jwt.MapClaims{
         "iss": "chirpy",    // Issuer
         "iat": time.Now(),    // Issued At
         "sub": strconv.Itoa(dbUser.ID),  // Subject (user ID)
-        "exp": expiresIn, // Expiration (above)
+        "exp": expirationTime, // Expiration (above)
     }
 
     // Create token
@@ -75,12 +78,31 @@ if params.ExpiresInSeconds > 0 {
         respondWithError(w, http.StatusInternalServerError, "Error signing token")
         return
     }
-fmt.Printf("Login successful: UserID=%d, Token=%s", dbUser.ID, signedToken)
-    // Send JWT in the response header
-    w.Header().Set("Authorization", "Bearer "+signedToken)
+// fmt.Printf("Login successful: UserID=%d, Token=%s", dbUser.ID, signedToken)
+//     // Send JWT in the response header
+//     w.Header().Set("Authorization", "Bearer " + signedToken)
 
-	respondWithJSON(w, http.StatusOK, User{
-		ID:   dbUser.ID,
-		Email: dbUser.Email,
-	})
+// 	respondWithJSON(w, http.StatusOK, User{
+// 		ID:   dbUser.ID,
+// 		Email: dbUser.Email,
+	 
+// 	})
+
+	// Prepare response
+	response := map[string]interface{}{
+		"id":    dbUser.ID,
+		"email": dbUser.Email,
+		"token": signedToken,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't encode response")
+		return
+	}
+
+	fmt.Printf("User logged in: %s\n", dbUser.Email)
 }
