@@ -22,6 +22,11 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		ExpiresInSeconds int `json:"expires_in_seconds"`
 	}
 
+type response struct {
+		User
+		Token string `json:"token"`
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -50,7 +55,7 @@ if err != nil {
 					return
 } 
 
-	expiresIn := 24 * time.Hour // default expiration
+	expiresIn := 1 * time.Hour // default expiration
 	if params.ExpiresInSeconds > 0 {
 		potentialExpiresIn := time.Duration(params.ExpiresInSeconds) * time.Second
 		if potentialExpiresIn <= 24*time.Hour {
@@ -67,7 +72,7 @@ if err != nil {
         "exp": expirationTime, // Expiration (above)
     }
 
-    // Create token
+    // Create JSON web token
     token  := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 				secretKey := cfg.jwtSecret
 
@@ -82,27 +87,28 @@ if err != nil {
 //     // Send JWT in the response header
 //     w.Header().Set("Authorization", "Bearer " + signedToken)
 
-// 	respondWithJSON(w, http.StatusOK, User{
-// 		ID:   dbUser.ID,
-// 		Email: dbUser.Email,
-	 
-// 	})
-
+	respondWithJSON(w, http.StatusOK, response{
+		User: User{
+			ID:    dbUser.ID,
+			Email: dbUser.Email,
+		},
+		Token: signedToken,
+	})
 	// Prepare response
-	response := map[string]interface{}{
-		"id":    dbUser.ID,
-		"email": dbUser.Email,
-		"token": signedToken,
-	}
+	// response := map[string]interface{}{
+	// 	"id":    dbUser.ID,
+	// 	"email": dbUser.Email,
+	// 	"token": signedToken,
+	// }
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	// w.Header().Set("Content-Type", "application/json")
+	// w.WriteHeader(http.StatusOK)
 
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't encode response")
-		return
-	}
+	// err = json.NewEncoder(w).Encode(response)
+	// if err != nil {
+	// 	respondWithError(w, http.StatusInternalServerError, "Couldn't encode response")
+	// 	return
+	// }
 
-	fmt.Printf("User logged in: %s\n", dbUser.Email)
+	// fmt.Printf("User logged in: %s\n", dbUser.Email)
 }
