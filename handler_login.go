@@ -3,6 +3,8 @@ package main
 //	"golang.org/x/crypto/bcrypt"
 //
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -25,6 +27,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 type response struct {
 		User
 		Token string `json:"token"`
+		RefreshToken string `json:"refresh_token"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -87,28 +90,33 @@ if err != nil {
 //     // Send JWT in the response header
 //     w.Header().Set("Authorization", "Bearer " + signedToken)
 
-	respondWithJSON(w, http.StatusOK, response{
-		User: User{
-			ID:    dbUser.ID,
-			Email: dbUser.Email,
-		},
-		Token: signedToken,
+ 
+	randomBytes := make([]byte, 32)
+
+ retries := 3
+    for i := 0; i < retries; i++ {
+        _, err := rand.Read(randomBytes)
+        if err != nil {
+            // Log the error for analysis
+            fmt.Printf("Error generating random bytes (attempt %d): %v", i+1, err)
+            continue // Try again
+        }
+
+        // If no error, break out of the loop
+        encodedStr := hex.EncodeToString(randomBytes)
+        fmt.Println("Encoded random bytes:", encodedStr)	
+								
+								respondWithJSON(w, http.StatusOK, response{
+									User: User{
+									ID:    dbUser.ID,
+									Email: dbUser.Email,
+								},
+									Token: signedToken,
+									RefreshToken: encodedStr,
 	})
-	// Prepare response
-	// response := map[string]interface{}{
-	// 	"id":    dbUser.ID,
-	// 	"email": dbUser.Email,
-	// 	"token": signedToken,
-	// }
+        return // Exit the program successfully
+    }
 
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
+   fmt.Println("could not generate random bytes")	
 
-	// err = json.NewEncoder(w).Encode(response)
-	// if err != nil {
-	// 	respondWithError(w, http.StatusInternalServerError, "Couldn't encode response")
-	// 	return
-	// }
-
-	// fmt.Printf("User logged in: %s\n", dbUser.Email)
 }
