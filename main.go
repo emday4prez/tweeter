@@ -65,6 +65,7 @@ jwtS := os.Getenv("JWT_SECRET")
 		mux.HandleFunc("PUT /api/users", apiCfg.handlerUsersUpdate)
 
 		mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+		mux.HandleFunc("POST /api/refresh", apiCfg.refreshHandler)
 
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 

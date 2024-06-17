@@ -12,20 +12,27 @@ type DB struct {
 	mu   *sync.RWMutex
 }
 
-type DBStructure struct {
-	Chirps map[int]Chirp `json:"chirps"`
-	Users map[int]User `json:"users"`
-}
-
 type Chirp struct {
 	ID   int    `json:"id"`
 	Body string `json:"body"`
 }
 
+type DBStructure struct {
+	Chirps       map[int]Chirp        `json:"chirps"`
+	Users        map[int]User         `json:"users"`
+	RefreshTokens map[string]RefreshToken `json:"refresh_tokens"` 
+}
+
 type User struct {
-	ID   int    `json:"id"`
-	Email string `json:"email"`
-	Password string `json:"password"`
+	ID           int      `json:"id"`
+	Email        string   `json:"email"`
+	Password     string   `json:"password"`
+}
+
+type RefreshToken struct {
+	Token  string `json:"token"`
+	UserID int    `json:"user_id"`
+	Expiry string `json:"expiry"`
 }
 
 func NewDB(path string) (*DB, error) {
@@ -108,6 +115,20 @@ func (db *DB) GetUserByEmail(email string) (User, error) {
 	return matchingUser, errors.New("no users with that email")
 }
 
+func (db *DB) FindToken(token string)(RefreshToken, error){
+	    var matchingToken RefreshToken
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return matchingToken, err
+	}
+
+ 
+    if foundToken, exists := dbStructure.RefreshTokens[token]; exists {
+        return foundToken, nil
+    }
+
+	return matchingToken, errors.New("token not found")
+}
 
 func (db *DB) CreateUser(email string, password string) (User, error) {
 	dbStructure, err := db.loadDB()

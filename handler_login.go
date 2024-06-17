@@ -101,7 +101,10 @@ if err != nil {
             fmt.Printf("Error generating random bytes (attempt %d): %v", i+1, err)
             continue // Try again
         }
-
+if retries < 1 {
+respondWithError(w, 500, "Could not generate random bytes")
+return
+}
         // If no error, break out of the loop
         encodedStr := hex.EncodeToString(randomBytes)
         fmt.Println("Encoded random bytes:", encodedStr)	
@@ -117,6 +120,6 @@ if err != nil {
         return // Exit the program successfully
     }
 
-   fmt.Println("could not generate random bytes")	
+   
 
 }
