@@ -10,7 +10,6 @@ import (
 
 func (cfg *apiConfig) handleRevoke(w http.ResponseWriter, r *http.Request){
 
-
 		    // check if the request method is not GET or HEAD
     if r.Method != http.MethodGet && r.Method != http.MethodHead {
         respondWithError(w, http.StatusMethodNotAllowed,"Method Not Allowed")
