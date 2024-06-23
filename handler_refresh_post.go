@@ -13,11 +13,11 @@ type response struct {
 func (cfg *apiConfig) refreshHandler(w http.ResponseWriter, r *http.Request){
 
 
-		  //   // check if the request method is not GET or HEAD
-    // if r.Method != http.MethodGet && r.Method != http.MethodHead {
-    //     respondWithError(w, http.StatusMethodNotAllowed,"Method Not Allowed")
-    //     return
-    // }
+		    // check if the request method is not GET or HEAD
+    if r.Method != http.MethodPost{
+        respondWithError(w, http.StatusMethodNotAllowed,"Method Not Allowed")
+        return
+    }
 
     // check if the Content-Length header is present and non-zero
     if r.ContentLength > 0 {
