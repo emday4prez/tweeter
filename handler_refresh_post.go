@@ -12,8 +12,7 @@ type response struct {
 
 func (cfg *apiConfig) refreshHandler(w http.ResponseWriter, r *http.Request){
 
-
-		    // check if the request method is not GET or HEAD
+		    // check if the request method is not posty
     if r.Method != http.MethodPost{
         respondWithError(w, http.StatusMethodNotAllowed,"Method Not Allowed")
         return
